@@ -247,7 +247,8 @@ ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
     settings.peakBypassed = apvts.getRawParameterValue("Peak Bypassed")->load() > 0.5f;
     settings.highCutBypassed = apvts.getRawParameterValue("HighCut Bypassed")->load() > 0.5f;
     settings.recordOn = apvts.getRawParameterValue("Record On")->load() > 0.5f;
-    
+    settings.averageOn = apvts.getRawParameterValue("Show Avg")->load() > 0.5f;
+    settings.autoParams = apvts.getRawParameterValue("Auto Params")->load() > 0.5f;
     return settings;
 }
 
@@ -359,6 +360,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::crea
     layout.add(std::make_unique<juce::AudioParameterBool>("HighCut Bypassed", "HighCut Bypassed", false));
     layout.add(std::make_unique<juce::AudioParameterBool>("Analyzer Enabled", "Analyzer Enabled", true));
     layout.add(std::make_unique<juce::AudioParameterBool>("Record On", "Record On", false));
+    layout.add(std::make_unique<juce::AudioParameterBool>("Show Avg", "Show Avg", false));
+    layout.add(std::make_unique<juce::AudioParameterBool>("Auto Params", "Auto Params", false));
     return layout;
 }
 

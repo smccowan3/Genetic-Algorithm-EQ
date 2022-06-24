@@ -317,6 +317,15 @@ void ResponseCurveComponent::updateChain()
     {
         DBG("Recording on");
     }
+    if (chainSettings.averageOn)
+    {
+        DBG("Average show on");
+    }
+    if (chainSettings.autoParams)
+    {
+        DBG("Auto params on");
+    }
+    
     
 }
 
@@ -570,7 +579,9 @@ peakBypassButtonAttachment(audioProcessor.apvts, "Peak Bypassed", peakBypassButt
 highcutBypassButtonAttachment(audioProcessor.apvts, "HighCut Bypassed", highcutBypassButton),
 analyzerEnabledButtonAttachment(audioProcessor.apvts, "Analyzer Enabled", analyzerEnabledButton),
 recordOnButtonAttachment(audioProcessor.apvts, "Record On",
-                         recordButton)
+                         recordButton),
+averageButtonAttachment(audioProcessor.apvts, "Show Avg",  averageButton),
+autoParamsAttachment(audioProcessor.apvts, "Auto Params", autoParams)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
@@ -597,7 +608,17 @@ recordOnButtonAttachment(audioProcessor.apvts, "Record On",
     highCutSlopeSlider.labels.add({0.0f, "12"});
     highCutSlopeSlider.labels.add({1.f, "48"});
     
+    
     recordButton.setClickingTogglesState(true);
+    recordButton.setColour(juce::TextButton::buttonOnColourId, juce::Colours::red);
+    
+
+    averageButton.setClickingTogglesState(true);
+    averageButton.setColour(juce::TextButton::buttonOnColourId, juce::Colours::red);
+    
+    autoParams.setClickingTogglesState(true);
+    autoParams.setColour(juce::TextButton::buttonOnColourId, juce::Colours::red);
+    
     
     for( auto* comp : getComps() )
     {
@@ -649,7 +670,17 @@ void SimpleEQAudioProcessorEditor::resized()
     peakGainSlider.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.5));
     peakQualitySlider.setBounds(bounds);
     
-    recordButton.setBounds(510,150,80,50);
+    int x = 510;
+    int y = 150;
+    int w = 80;
+    int h = 50;
+    int gap = 10;
+    
+    recordButton.setBounds(x,y,w,h);
+    averageButton.setBounds(x,y+gap+h,w,h);
+    autoParams.setBounds(x,y+2*gap+2*h,w,h);
+    
+    
     
 }
 
@@ -670,6 +701,8 @@ std::vector<juce::Component*> SimpleEQAudioProcessorEditor::getComps()
         &peakBypassButton,
         &highcutBypassButton,
         &analyzerEnabledButton,
-        &recordButton
+        &recordButton,
+        &autoParams,
+        &averageButton,
     };
 }

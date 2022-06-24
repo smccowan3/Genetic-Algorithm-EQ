@@ -293,7 +293,7 @@ private:
                 highCutSlopeSliderAttachment;
     
     juce::ToggleButton lowcutBypassButton, peakBypassButton, highcutBypassButton, analyzerEnabledButton;
-    juce::TextButton recordButton {"Record Toggle"};
+    juce::TextButton recordButton {"Record Toggle"}, averageButton{"Show Average"}, autoParams{"Auto Parameters"};
     
     
     using ButtonAttachment = APVTS::ButtonAttachment;
@@ -301,7 +301,9 @@ private:
                      peakBypassButtonAttachment,
                      highcutBypassButtonAttachment,
                      analyzerEnabledButtonAttachment,
-                     recordOnButtonAttachment;
+                    recordOnButtonAttachment,
+                    averageButtonAttachment,
+                    autoParamsAttachment;
     
     std::vector<juce::Component*> getComps();
 

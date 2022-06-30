@@ -11,6 +11,9 @@
 #include <JuceHeader.h>
 
 #include <array>
+
+
+
 template<typename T>
 struct Fifo
 {
@@ -42,14 +45,18 @@ struct Fifo
     
     bool push(const T& t)
     {
+        
         auto write = fifo.write(1);
         if( write.blockSize1 > 0 )
         {
+            
             buffers[write.startIndex1] = t;
             return true;
+            
         }
         
         return false;
+        
     }
     
     bool pull(T& t)
@@ -247,6 +254,9 @@ public:
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
+    
+   
+   
 
    #ifndef JucePlugin_PreferredChannelConfigurations
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
@@ -284,6 +294,7 @@ public:
     SingleChannelSampleFifo<BlockType> leftChannelFifo { Channel::Left };
     SingleChannelSampleFifo<BlockType> rightChannelFifo { Channel::Right };
 private:
+
     MonoChain leftChain, rightChain;
     
     void updatePeakFilter(const ChainSettings& chainSettings);
@@ -291,7 +302,7 @@ private:
     juce::dsp::AudioBlock <float> blockAverage;
     int blocksTaken = 0;
     
-    void AverageBlock(juce::dsp::AudioBlock<float> block);
+    //void AverageBlock(juce::dsp::AudioBlock<float> block);
     
     void updateLowCutFilters(const ChainSettings& chainSettings);
     void updateHighCutFilters(const ChainSettings& chainSettings);

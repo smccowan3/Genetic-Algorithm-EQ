@@ -117,6 +117,7 @@ void SimpleEQAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
     spec.numChannels = getTotalNumOutputChannels();
     osc.prepare(spec);
     osc.setFrequency(440);
+
 }
 
 void SimpleEQAudioProcessor::releaseResources()
@@ -190,6 +191,8 @@ void SimpleEQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     
     leftChain.process(leftContext);
     rightChain.process(rightContext);
+    
+    
     
     leftChannelFifo.update(buffer);
     rightChannelFifo.update(buffer);
@@ -374,10 +377,4 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 
 
 
-void SimpleEQAudioProcessor::AverageBlock(juce::dsp::AudioBlock<float> bufferBlock)
-{
-    SimpleEQAudioProcessor::blocksTaken ++;
-    bufferBlock.multiplyBy(1/SimpleEQAudioProcessor::blocksTaken);
-    blockAverage.multiplyBy(1-1/SimpleEQAudioProcessor::blocksTaken);
-    blockAverage.add(bufferBlock);
-}
+

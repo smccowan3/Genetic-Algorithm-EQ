@@ -9,6 +9,8 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+Averager average;
+
 void LookAndFeel::drawRotarySlider(juce::Graphics & g,
                                    int x,
                                    int y,
@@ -255,7 +257,18 @@ void PathProducer::process(juce::Rectangle<float> fftBounds, double sampleRate)
         std::vector<float> fftData;
         if( leftChannelFFTDataGenerator.getFFTData(fftData) )
         {
-            pathProducer.generatePath(fftData, fftBounds, fftSize, binWidth, -48.f);
+            if (average.recordOn)
+            {
+                average.AverageBlock(fftData);
+            }
+            if(average.showAverage)
+            {
+                pathProducer.generatePath(average.storedAverage, fftBounds, fftSize, binWidth, -48.f);
+            }
+            else
+            {
+                pathProducer.generatePath(fftData, fftBounds, fftSize, binWidth, -48.f);
+            }
         }
     }
     
@@ -276,6 +289,7 @@ void ResponseCurveComponent::timerCallback()
     
     auto fftBounds = getAnalysisArea().toFloat();
     auto sampleRate = audioProcessor.getSampleRate();
+    
     
     leftPathProducer.process(fftBounds, sampleRate);
     rightPathProducer.process(fftBounds, sampleRate);
@@ -315,11 +329,22 @@ void ResponseCurveComponent::updateChain()
     //do something about recording here
     if (chainSettings.recordOn)
     {
-        DBG("Recording on");
+        DBG("Record on");
+        average.recordOn = true;
     }
+    if (!chainSettings.recordOn)
+    {
+        DBG("Record off");
+        if(average.recordOn)
+        {
+            average.recordReset();
+        }
+    }
+    
     if (chainSettings.averageOn)
     {
         DBG("Average show on");
+        average.showAverage = true;
     }
     if (chainSettings.autoParams)
     {
@@ -641,6 +666,32 @@ void SimpleEQAudioProcessorEditor::paint (juce::Graphics& g)
     g.fillAll (Colours::black);
 }
 
+void Averager::AverageBlock(std::vector<float> specSample)
+{
+    //here what we need to do is compute a spectrogram for each buffer. Then we need to convert that to a spectrum object
+    dataTaken++;
+    
+    if (specAverage.size() == 0)
+    {
+        for(int i = 0; i < specSample.size(); i++)
+        {
+            specAverage.reserve(specSample.size());
+            specAverage.push_back(specSample[i]);
+        }
+        
+    }
+    
+    else
+    {
+        for(int i = 0; i < specSample.size(); i++)
+        {
+            
+            specAverage[i] = (specAverage[i]*(dataTaken-1) + specSample[i]) /dataTaken;
+        }
+    }
+}
+
+
 void SimpleEQAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
@@ -662,15 +713,15 @@ void SimpleEQAudioProcessorEditor::resized()
     lowCutSlopeSlider.setBounds(lowCutArea);
     
     highcutBypassButton.setBounds(highCutArea.removeFromTop(25));
-    highCutFreqSlider.setBounds(highCutArea.removeFromTop(highCutArea.getHeight() * 0.5));
-    highCutSlopeSlider.setBounds(highCutArea);
+    highCutFreqSlider.setBounds(250,150,125,125);
+    highCutSlopeSlider.setBounds(250,310,125,125);
     
     peakBypassButton.setBounds(bounds.removeFromTop(25));
     peakFreqSlider.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.33));
     peakGainSlider.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.5));
     peakQualitySlider.setBounds(bounds);
     
-    int x = 510;
+    int x = 450;
     int y = 150;
     int w = 80;
     int h = 50;
@@ -706,3 +757,20 @@ std::vector<juce::Component*> SimpleEQAudioProcessorEditor::getComps()
         &averageButton,
     };
 }
+
+void Averager::recordReset()
+{
+    dataTaken = 0;
+    recordOn = false;
+    if (storedAverage.size() > 0)
+    {
+        storedAverage.clear();
+    }
+    storedAverage.reserve(specAverage.size());
+    for (int i = 0; i< specAverage.size(); i++)
+    {
+        storedAverage.push_back(specAverage[i]);
+    }
+    specAverage.clear();
+}
+

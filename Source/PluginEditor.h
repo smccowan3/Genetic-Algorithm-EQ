@@ -255,6 +255,20 @@ private:
 //==============================================================================
 /**
 */
+
+class Averager
+{
+public:
+    void AverageBlock(std::vector<float>) ;
+    std::vector<float> specAverage;
+    std::vector<float> storedAverage;
+    int dataTaken = 0;
+    bool recordOn = false;
+    bool showAverage = false;
+    void recordReset();
+         
+};
+
 class SimpleEQAudioProcessorEditor  : public juce::AudioProcessorEditor
 {
 public:
@@ -264,12 +278,13 @@ public:
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
+    
 
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     SimpleEQAudioProcessor& audioProcessor;
-
+    
     
     RotarySliderWithLabels peakFreqSlider,
     peakGainSlider,

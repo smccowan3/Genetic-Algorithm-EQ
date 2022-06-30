@@ -252,6 +252,8 @@ ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
     settings.recordOn = apvts.getRawParameterValue("Record On")->load() > 0.5f;
     settings.averageOn = apvts.getRawParameterValue("Show Avg")->load() > 0.5f;
     settings.autoParams = apvts.getRawParameterValue("Auto Params")->load() > 0.5f;
+    settings.storeModel = apvts.getRawParameterValue("Store Model")->load() > 0.5f;
+    settings.showModel = apvts.getRawParameterValue("Show Model")->load() > 0.5f;
     return settings;
 }
 
@@ -365,6 +367,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::crea
     layout.add(std::make_unique<juce::AudioParameterBool>("Record On", "Record On", false));
     layout.add(std::make_unique<juce::AudioParameterBool>("Show Avg", "Show Avg", false));
     layout.add(std::make_unique<juce::AudioParameterBool>("Auto Params", "Auto Params", false));
+    layout.add(std::make_unique<juce::AudioParameterBool>("Store Model", "Store Model", false));
+    layout.add(std::make_unique<juce::AudioParameterBool>("Show Model", "Show Model", false));
     return layout;
 }
 

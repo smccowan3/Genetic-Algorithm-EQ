@@ -262,9 +262,12 @@ public:
     void AverageBlock(std::vector<float>) ;
     std::vector<float> specAverage;
     std::vector<float> storedAverage;
+    std::vector<float> storedModel;
     int dataTaken = 0;
     bool recordOn = false;
     bool showAverage = false;
+    bool showModel = false;
+
     void recordReset();
          
 };
@@ -308,7 +311,7 @@ private:
                 highCutSlopeSliderAttachment;
     
     juce::ToggleButton lowcutBypassButton, peakBypassButton, highcutBypassButton, analyzerEnabledButton;
-    juce::TextButton recordButton {"Record Toggle"}, averageButton{"Show Average"}, autoParams{"Auto Parameters"};
+    juce::TextButton recordButton {"Record Toggle"}, averageButton{"Show Average"}, autoParams{"Auto Parameters"}, storeModel{"Store Model"}, showModel{"Show Model"};
     
     
     using ButtonAttachment = APVTS::ButtonAttachment;
@@ -318,7 +321,9 @@ private:
                      analyzerEnabledButtonAttachment,
                     recordOnButtonAttachment,
                     averageButtonAttachment,
-                    autoParamsAttachment;
+                    autoParamsAttachment,
+                    storeModelAttachment,
+    showModelAttachment;
     
     std::vector<juce::Component*> getComps();
 

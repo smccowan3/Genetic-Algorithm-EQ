@@ -265,6 +265,10 @@ void PathProducer::process(juce::Rectangle<float> fftBounds, double sampleRate)
             {
                 pathProducer.generatePath(average.storedAverage, fftBounds, fftSize, binWidth, -48.f);
             }
+            else if (average.showModel)
+            {
+                pathProducer.generatePath(average.storedModel, fftBounds, fftSize, binWidth, -48.f);
+            }
             else
             {
                 pathProducer.generatePath(fftData, fftBounds, fftSize, binWidth, -48.f);
@@ -345,12 +349,42 @@ void ResponseCurveComponent::updateChain()
     {
         DBG("Average show on");
         average.showAverage = true;
+        average.showModel = false;
+    }
+    if (!chainSettings.averageOn)
+    {
+        DBG("Average show false");
+        average.showAverage = false;
     }
     if (chainSettings.autoParams)
     {
         DBG("Auto params on");
     }
-    
+    if (chainSettings.storeModel)
+    {
+        DBG("Storing Model");
+        if (average.storedModel.size() > 0)
+        {
+            average.storedModel.clear();
+        }
+        average.storedModel.reserve(average.storedAverage.size());
+        for (int i= 0; i < average.storedAverage.size(); i++)
+        {
+            average.storedModel.push_back(average.storedAverage[i]);
+        }
+    }
+    if (chainSettings.showModel)
+    {
+        DBG("Show Model");
+        average.showModel = true;
+        average.showAverage = false;
+    }
+    if(!chainSettings.showModel)
+    {
+        DBG("Show model off");
+        average.showModel = false;
+        
+    }
     
 }
 
@@ -606,7 +640,9 @@ analyzerEnabledButtonAttachment(audioProcessor.apvts, "Analyzer Enabled", analyz
 recordOnButtonAttachment(audioProcessor.apvts, "Record On",
                          recordButton),
 averageButtonAttachment(audioProcessor.apvts, "Show Avg",  averageButton),
-autoParamsAttachment(audioProcessor.apvts, "Auto Params", autoParams)
+autoParamsAttachment(audioProcessor.apvts, "Auto Params", autoParams),
+storeModelAttachment(audioProcessor.apvts,"Store Model", storeModel),
+showModelAttachment(audioProcessor.apvts,"Show Model", showModel)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
@@ -643,6 +679,12 @@ autoParamsAttachment(audioProcessor.apvts, "Auto Params", autoParams)
     
     autoParams.setClickingTogglesState(true);
     autoParams.setColour(juce::TextButton::buttonOnColourId, juce::Colours::red);
+    
+    storeModel.setClickingTogglesState(true);
+    storeModel.setColour(juce::TextButton::buttonOnColourId, juce::Colours::red);
+    
+    showModel.setClickingTogglesState(true);
+    showModel.setColour(juce::TextButton::buttonOnColourId, juce::Colours::red);
     
     
     for( auto* comp : getComps() )
@@ -730,8 +772,8 @@ void SimpleEQAudioProcessorEditor::resized()
     recordButton.setBounds(x,y,w,h);
     averageButton.setBounds(x,y+gap+h,w,h);
     autoParams.setBounds(x,y+2*gap+2*h,w,h);
-    
-    
+    storeModel.setBounds(x,y+3*gap+3*h,w,h);
+    showModel.setBounds(x,y+4*gap+4*h,w,h);
     
 }
 
@@ -755,6 +797,8 @@ std::vector<juce::Component*> SimpleEQAudioProcessorEditor::getComps()
         &recordButton,
         &autoParams,
         &averageButton,
+        &storeModel,
+        &showModel,
     };
 }
 

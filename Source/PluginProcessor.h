@@ -167,7 +167,8 @@ struct ChainSettings
     
     Slope lowCutSlope { Slope::Slope_12 }, highCutSlope { Slope::Slope_12 };
     
-    bool lowCutBypassed { false }, peakBypassed { false }, highCutBypassed { false }, recordOn{false}, averageOn{false}, autoParams{false};
+    bool lowCutBypassed { false }, peakBypassed { false }, highCutBypassed { false }, recordOn{false}, averageOn{false}, autoParams{false}, storeModel{false},
+    showModel{false};
 };
 
 ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);

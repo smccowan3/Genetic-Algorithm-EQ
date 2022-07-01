@@ -251,6 +251,7 @@ void PathProducer::process(juce::Rectangle<float> fftBounds, double sampleRate)
      48000 / 2048 = 23hz  <- this is the bin width
      */
     const auto binWidth = sampleRate / (double)fftSize;
+    average.binWidth = binWidth;
     
     while( leftChannelFFTDataGenerator.getNumAvailableFFTDataBlocks() > 0 )
     {
@@ -400,6 +401,10 @@ void ResponseCurveComponent::updateChain()
     {
         average.calculated = false;
         average.calcDist = false;
+        if(average.calcDistButton != NULL)
+        {
+            average.calcDistButton->setButtonText("Calc Dist");
+        }
     }
     
 }
@@ -705,6 +710,7 @@ calcDistAttachment(audioProcessor.apvts,"Calc Dist", calcDist)
     
     calcDist.setClickingTogglesState(true);
     calcDist.setColour(juce::TextButton::buttonOnColourId, juce::Colours::purple);
+    average.calcDistButton = &calcDist;
     
     
     for( auto* comp : getComps() )
@@ -783,9 +789,9 @@ void SimpleEQAudioProcessorEditor::resized()
     peakGainSlider.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.5));
     peakQualitySlider.setBounds(bounds);
     
-    int x = 450;
+    int x = 430;
     int y = 130;
-    int w = 80;
+    int w = 100;
     int h = 50;
     int gap = 10;
     
@@ -840,29 +846,49 @@ void Averager::recordReset()
     specAverage.clear();
 }
 
+
+
+//ref for distance : https://www.sciencedirect.com/science/article/pii/S0024379511006021
 float Averager::calcDistance()
 {
-    float distance;
+    //float distance;
     float tempDist;
-    float tempLog;
+    //float tempLog;
     float total = 0;
+    int dataTaken = 0;
+    
+    
+//    for (int i = 0; i <average.storedAverage.size(); i++)
+//    for (int i = 0; i <5; i++)
+//    {
+//        if (average.storedAverage[i] == 0 && average.storedModel[i]==0)
+//        {
+//            break;
+//        }
+//        tempLog = pow(10*log10(average.storedAverage[i] / average.storedModel[i]),2);
+//        total += tempLog;
+//    }
     
     for (int i = 0; i <average.storedAverage.size(); i++)
-    //for (int i = 0; i <5; i++)
     {
-        //tempDist= average.storedAverage[i] - average.storedModel[i];
         if (average.storedAverage[i] == 0 && average.storedModel[i]==0)
-        {
-            break;
-        }
-        tempLog = pow(10*log10(average.storedAverage[i] / average.storedModel[i]),2);
-        total += tempLog;
-        //DBG(total);
+           {
+
+               break;
+               
+               
+           }
+        tempDist = abs(average.storedAverage[i] - average.storedModel[i]);
+        dataTaken++;
+        total = (total*(dataTaken-1) + tempDist) /dataTaken;
     }
     
     
-    distance = sqrt(1/(2*M_PI)*total);
+   
+    //distance = sqrt(1/(2*M_PI)*total);
     calculated = true;
-    return distance;
+    returnedDistance = total;
+    calcDistButton->setButtonText(std::to_string(returnedDistance));
+    return total;
 }
 

@@ -269,6 +269,9 @@ public:
     bool showModel = false;
     bool calcDist = false;
     bool calculated = false;
+    float returnedDistance = 0;
+    float binWidth;
+    juce::TextButton * calcDistButton;
     void recordReset();
     float calcDistance();
          

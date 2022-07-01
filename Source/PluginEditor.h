@@ -267,8 +267,10 @@ public:
     bool recordOn = false;
     bool showAverage = false;
     bool showModel = false;
-
+    bool calcDist = false;
+    bool calculated = false;
     void recordReset();
+    float calcDistance();
          
 };
 
@@ -311,7 +313,7 @@ private:
                 highCutSlopeSliderAttachment;
     
     juce::ToggleButton lowcutBypassButton, peakBypassButton, highcutBypassButton, analyzerEnabledButton;
-    juce::TextButton recordButton {"Record Toggle"}, averageButton{"Show Average"}, autoParams{"Auto Parameters"}, storeModel{"Store Model"}, showModel{"Show Model"};
+    juce::TextButton recordButton {"Record Toggle"}, averageButton{"Show Average"}, autoParams{"Auto Parameters"}, storeModel{"Store Model"}, showModel{"Show Model"}, calcDist{"Calc Dist"};
     
     
     using ButtonAttachment = APVTS::ButtonAttachment;
@@ -323,7 +325,8 @@ private:
                     averageButtonAttachment,
                     autoParamsAttachment,
                     storeModelAttachment,
-    showModelAttachment;
+    showModelAttachment,
+    calcDistAttachment;
     
     std::vector<juce::Component*> getComps();
 

@@ -261,11 +261,11 @@ void PathProducer::process(juce::Rectangle<float> fftBounds, double sampleRate)
             {
                 average.AverageBlock(fftData);
             }
-            if(average.showAverage)
+            if(average.showAverage && average.storedAverage.size() > 0)
             {
                 pathProducer.generatePath(average.storedAverage, fftBounds, fftSize, binWidth, -48.f);
             }
-            else if (average.showModel)
+            else if (average.showModel && average.storedModel.size() > 0)
             {
                 pathProducer.generatePath(average.storedModel, fftBounds, fftSize, binWidth, -48.f);
             }
@@ -275,6 +275,12 @@ void PathProducer::process(juce::Rectangle<float> fftBounds, double sampleRate)
             }
         }
     }
+    
+    if (average.calcDist && !average.calculated)
+    {
+        DBG(average.calcDistance());
+    }
+    
     
     /*
      while there are paths that can be pull
@@ -384,6 +390,16 @@ void ResponseCurveComponent::updateChain()
         DBG("Show model off");
         average.showModel = false;
         
+    }
+    
+    if(chainSettings.calcDist && average.storedModel.size() > 0 && average.storedAverage.size() > 0)
+    {
+        average.calcDist = true;
+    }
+    else if (!chainSettings.calcDist)
+    {
+        average.calculated = false;
+        average.calcDist = false;
     }
     
 }
@@ -642,7 +658,8 @@ recordOnButtonAttachment(audioProcessor.apvts, "Record On",
 averageButtonAttachment(audioProcessor.apvts, "Show Avg",  averageButton),
 autoParamsAttachment(audioProcessor.apvts, "Auto Params", autoParams),
 storeModelAttachment(audioProcessor.apvts,"Store Model", storeModel),
-showModelAttachment(audioProcessor.apvts,"Show Model", showModel)
+showModelAttachment(audioProcessor.apvts,"Show Model", showModel),
+calcDistAttachment(audioProcessor.apvts,"Calc Dist", calcDist)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
@@ -685,6 +702,9 @@ showModelAttachment(audioProcessor.apvts,"Show Model", showModel)
     
     showModel.setClickingTogglesState(true);
     showModel.setColour(juce::TextButton::buttonOnColourId, juce::Colours::red);
+    
+    calcDist.setClickingTogglesState(true);
+    calcDist.setColour(juce::TextButton::buttonOnColourId, juce::Colours::purple);
     
     
     for( auto* comp : getComps() )
@@ -764,7 +784,7 @@ void SimpleEQAudioProcessorEditor::resized()
     peakQualitySlider.setBounds(bounds);
     
     int x = 450;
-    int y = 150;
+    int y = 130;
     int w = 80;
     int h = 50;
     int gap = 10;
@@ -774,6 +794,7 @@ void SimpleEQAudioProcessorEditor::resized()
     autoParams.setBounds(x,y+2*gap+2*h,w,h);
     storeModel.setBounds(x,y+3*gap+3*h,w,h);
     showModel.setBounds(x,y+4*gap+4*h,w,h);
+    calcDist.setBounds(x,y+5*gap+5*h,w,h);
     
 }
 
@@ -799,6 +820,7 @@ std::vector<juce::Component*> SimpleEQAudioProcessorEditor::getComps()
         &averageButton,
         &storeModel,
         &showModel,
+        &calcDist,
     };
 }
 
@@ -816,5 +838,31 @@ void Averager::recordReset()
         storedAverage.push_back(specAverage[i]);
     }
     specAverage.clear();
+}
+
+float Averager::calcDistance()
+{
+    float distance;
+    float tempDist;
+    float tempLog;
+    float total = 0;
+    
+    for (int i = 0; i <average.storedAverage.size(); i++)
+    //for (int i = 0; i <5; i++)
+    {
+        //tempDist= average.storedAverage[i] - average.storedModel[i];
+        if (average.storedAverage[i] == 0 && average.storedModel[i]==0)
+        {
+            break;
+        }
+        tempLog = pow(10*log10(average.storedAverage[i] / average.storedModel[i]),2);
+        total += tempLog;
+        //DBG(total);
+    }
+    
+    
+    distance = sqrt(1/(2*M_PI)*total);
+    calculated = true;
+    return distance;
 }
 

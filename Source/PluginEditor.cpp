@@ -228,6 +228,8 @@ void PathProducer::process(juce::Rectangle<float> fftBounds, double sampleRate)
         {
             auto size = tempIncomingBuffer.getNumSamples();
             
+            
+            
             juce::FloatVectorOperations::copy(monoBuffer.getWritePointer(0, 0),
                                               monoBuffer.getReadPointer(0, size),
                                               monoBuffer.getNumSamples() - size);
@@ -235,6 +237,9 @@ void PathProducer::process(juce::Rectangle<float> fftBounds, double sampleRate)
             juce::FloatVectorOperations::copy(monoBuffer.getWritePointer(0, monoBuffer.getNumSamples() - size),
                                               tempIncomingBuffer.getReadPointer(0, 0),
                                               size);
+            
+            
+            
             
             leftChannelFFTDataGenerator.produceFFTDataForRendering(monoBuffer, -48.f);
         }
@@ -851,44 +856,24 @@ void Averager::recordReset()
 //ref for distance : https://www.sciencedirect.com/science/article/pii/S0024379511006021
 float Averager::calcDistance()
 {
-    //float distance;
+    float distance;
     float tempDist;
-    //float tempLog;
+    float tempLog;
     float total = 0;
     int dataTaken = 0;
     
     
-//    for (int i = 0; i <average.storedAverage.size(); i++)
-//    for (int i = 0; i <5; i++)
-//    {
-//        if (average.storedAverage[i] == 0 && average.storedModel[i]==0)
-//        {
-//            break;
-//        }
-//        tempLog = pow(10*log10(average.storedAverage[i] / average.storedModel[i]),2);
-//        total += tempLog;
-//    }
-    
-    for (int i = 0; i <average.storedAverage.size(); i++)
+    for (int i = 1; i <average.storedAverage.size()/2; i++)
+    //for (int i = 0; i <5; i++)
     {
-        if (average.storedAverage[i] == 0 && average.storedModel[i]==0)
-           {
-
-               break;
-               
-               
-           }
-        tempDist = abs(average.storedAverage[i] - average.storedModel[i]);
-        dataTaken++;
-        total = (total*(dataTaken-1) + tempDist) /dataTaken;
+        tempLog = pow(20*log10(average.storedAverage[i] / average.storedModel[i]),2);
+        total = (total * (i-1) + tempLog) / i;
     }
     
-    
-   
-    //distance = sqrt(1/(2*M_PI)*total);
+    distance = sqrt(total);
     calculated = true;
-    returnedDistance = total;
+    returnedDistance = distance;
     calcDistButton->setButtonText(std::to_string(returnedDistance));
-    return total;
+    return distance;
 }
 

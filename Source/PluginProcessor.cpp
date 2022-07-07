@@ -169,6 +169,8 @@ void SimpleEQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 
     updateFilters();
     
+    
+    
     juce::dsp::AudioBlock<float> block(buffer);
     
 //    buffer.clear();
@@ -315,6 +317,7 @@ void SimpleEQAudioProcessor::updateFilters()
 {
     auto chainSettings = getChainSettings(apvts);
     
+    
     updateLowCutFilters(chainSettings);
     updatePeakFilter(chainSettings);
     updateHighCutFilters(chainSettings);
@@ -381,6 +384,13 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
     return new SimpleEQAudioProcessor();
 }
 
+
+ParameterChild::ParameterChild(std::vector<juce::AudioBuffer<float>>* buffer)
+{
+    bufVector = buffer;
+    bufVectorSize = buffer.size();
+    DBG("made child");
+}
 
 
 

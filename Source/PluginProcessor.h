@@ -317,5 +317,15 @@ private:
 
 
 
+class ParameterChild
+{
+public:
+    ChainSettings chainSet;
+    std::vector<juce::AudioBuffer<float>>* bufVector;
+    int bufVectorSize;
+    ParameterChild(std::vector<juce::AudioBuffer<float>>* buffer);
+};
+
+
 
 

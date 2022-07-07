@@ -264,6 +264,8 @@ public:
     std::vector<float> storedAverage;
     std::vector<float> storedModel;
     int dataTaken = 0;
+    std::vector<juce::AudioBuffer<float>>* bufVector;
+    
     bool recordOn = false;
     bool showAverage = false;
     bool showModel = false;

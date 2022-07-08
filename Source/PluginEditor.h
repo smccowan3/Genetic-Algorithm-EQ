@@ -254,7 +254,15 @@ private:
 
 //==============================================================================
 /**
-*/
+ */
+
+class GeneticAlgo
+{
+public:
+    std::vector<ParameterChild> children;
+    void Start();
+};
+
 
 class Averager
 {
@@ -264,18 +272,27 @@ public:
     std::vector<float> storedAverage;
     std::vector<float> storedModel;
     int dataTaken = 0;
-    std::vector<juce::AudioBuffer<float>>* bufVector;
+    std::vector<juce::AudioBuffer<float>> bufVector;
+    int sampleRate;
+    
     
     bool recordOn = false;
     bool showAverage = false;
     bool showModel = false;
     bool calcDist = false;
     bool calculated = false;
+    
+
+    
+    
     float returnedDistance = 0;
     float binWidth;
     juce::TextButton * calcDistButton;
     void recordReset();
     float calcDistance();
+    
+    void append(juce::AudioBuffer<float> IncomingBuffer);
+    //Averager::Averager();
          
 };
 

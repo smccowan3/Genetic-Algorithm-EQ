@@ -8,8 +8,12 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#define MAX_L 5
+#define SMPL_R 44100
 
 Averager average;
+GeneticAlgo geneFramework;
+
 
 void LookAndFeel::drawRotarySlider(juce::Graphics & g,
                                    int x,
@@ -221,14 +225,18 @@ void ResponseCurveComponent::parameterValueChanged(int parameterIndex, float new
 void PathProducer::process(juce::Rectangle<float> fftBounds, double sampleRate)
 {
     juce::AudioBuffer<float> tempIncomingBuffer;
-    
+    if(average.recordOn)
+    {
+        average.append(tempIncomingBuffer);
+    }
+
     while( leftChannelFifo->getNumCompleteBuffersAvailable() > 0 )
     {
         if( leftChannelFifo->getAudioBuffer(tempIncomingBuffer) )
         {
             auto size = tempIncomingBuffer.getNumSamples();
             
-            
+           
             
             juce::FloatVectorOperations::copy(monoBuffer.getWritePointer(0, 0),
                                               monoBuffer.getReadPointer(0, size),
@@ -371,6 +379,13 @@ void ResponseCurveComponent::updateChain()
     if (chainSettings.autoParams)
     {
         DBG("Auto params on");
+        if(average.storedAverage.size() > 0 && average.storedModel.size() >0)
+        {
+            geneFramework.Start();
+        }
+        else{
+            DBG("Please create model and average");
+        }
     }
     if (chainSettings.storeModel)
     {
@@ -384,6 +399,8 @@ void ResponseCurveComponent::updateChain()
         {
             average.storedModel.push_back(average.storedAverage[i]);
         }
+        average.bufVector.clear();
+        DBG("Cleared old vector for new buffers");
     }
     if (chainSettings.showModel)
     {
@@ -737,6 +754,8 @@ void SimpleEQAudioProcessorEditor::paint (juce::Graphics& g)
     using namespace juce;
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (Colours::black);
+    
+    
 }
 
 void Averager::AverageBlock(std::vector<float> specSample)
@@ -853,14 +872,11 @@ void Averager::recordReset()
 
 
 
-//ref for distance : https://www.sciencedirect.com/science/article/pii/S0024379511006021
 float Averager::calcDistance()
 {
     float distance;
-    float tempDist;
     float tempLog;
     float total = 0;
-    int dataTaken = 0;
     
     
     for (int i = 1; i <average.storedAverage.size()/2; i++)
@@ -877,3 +893,27 @@ float Averager::calcDistance()
     return distance;
 }
 
+void Averager::append(juce::AudioBuffer<float> IncomingBuffer)
+{
+    if (bufVector.size() <= MAX_L * SMPL_R)
+    {
+        DBG("Pushing back buffer.");
+        bufVector.push_back(IncomingBuffer);
+    }
+    else
+    {
+        DBG("Max Length of buffer vector reached.");
+    }
+}
+
+#define N_INIT 1000
+
+void GeneticAlgo::Start()
+{
+    children.reserve(N_INIT);
+    for (int i = 0; i<N_INIT ; i++)
+    {
+        children.push_back(ParameterChild(&average.bufVector));
+    }
+    
+}

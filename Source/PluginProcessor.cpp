@@ -388,8 +388,13 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 ParameterChild::ParameterChild(std::vector<juce::AudioBuffer<float>>* buffer)
 {
     bufVector = buffer;
-    bufVectorSize = buffer.size();
+    bufVectorSize = buffer->size();
     DBG("made child");
+    
+    // now randomize parameters
+    
+    
+
 }
 
 

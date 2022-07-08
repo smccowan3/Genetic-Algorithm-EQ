@@ -8,6 +8,8 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include <random>
+
 
 //==============================================================================
 SimpleEQAudioProcessor::SimpleEQAudioProcessor()
@@ -390,8 +392,17 @@ ParameterChild::ParameterChild(std::vector<juce::AudioBuffer<float>>* buffer)
     bufVector = buffer;
     bufVectorSize = buffer->size();
     DBG("made child");
-    
     // now randomize parameters
+    std::default_random_engine generator;
+    std::lognormal_distribution<float> freqDistribution(20.f,20000.f);
+    
+    
+   
+    
+    
+    
+    
+    
     
     
 
